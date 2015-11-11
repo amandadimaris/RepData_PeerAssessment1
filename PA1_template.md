@@ -30,7 +30,8 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 
 ### Loading data
 
-```{r showtable0}
+
+```r
 data <- read.csv( "activity.csv")
 ```
 
@@ -38,26 +39,31 @@ data <- read.csv( "activity.csv")
 
 The following graphs shows a histogram of the total number of steps taken each day, the missing values (NA) in the dataset, were ignored. 
 
-```{r showtable1, results='asis', message=FALSE, warning=FALSE}
+
+```r
 library(ggplot2)
 
 t <- aggregate(steps ~ date, data = data, FUN = sum  )
 qplot(steps,data = t)
 ```
 
-```{r showtable2, latex-like-tables, opts.label="xtable", message=FALSE,  results='asis'}
+![plot of chunk showtable1](figure/showtable1-1.png) 
+
+
+```r
 Mean <- round(mean(t$steps))
 Median <- round(median(t$steps))
 ```
 
-The mean and the median of the steps are `r format(Mean,scientific = FALSE,big.mark = ",") ` and `r format(Median,scientific = FALSE,big.mark = ",")`, respectively. 
+The mean and the median of the steps are 10,766 and 10,765, respectively. 
 
 
 ### What is the average daily activity pattern?
 
 The following graphs shows the 5-minute interval and the average number of steps taken, averaged across all days.
 
-```{r showtable3, results='asis', message=FALSE, warning=FALSE}
+
+```r
 t2 <- aggregate(steps ~ interval, data = data, FUN = mean  )
 
 g <- ggplot(t2, aes(x=interval, y = steps))
@@ -66,24 +72,25 @@ g + geom_line() +
         labs(x = "5-minute interval")
 ```
 
-```{r showtable4, results='asis', message=FALSE, warning=FALSE}
+![plot of chunk showtable3](figure/showtable3-1.png) 
 
+
+```r
 Max <- t2[t2$steps == max(t2$steps), "interval" ]
-
 ```
-The 5-minute interval with the maximum number of steps was the interval number `r Max`. 
+The 5-minute interval with the maximum number of steps was the interval number 835. 
 
 ### Imputing missing values
 
-```{r showtable5, results='asis', message=FALSE, warning=FALSE}
 
+```r
 naQ <- nrow(data[is.na(data),])
-
 ```
 
-The data has `r naQ ` of missing values (coded as NA) in the steps variable. The presence of missing days may introduce bias into some calculations or summaries of the data. For that instance, the missing values were fillied using the mean of the correspondent interval, analized the missing value effect. 
+The data has 2304 of missing values (coded as NA) in the steps variable. The presence of missing days may introduce bias into some calculations or summaries of the data. For that instance, the missing values were fillied using the mean of the correspondent interval, analized the missing value effect. 
 
-```{r showtable6, results='asis', message=FALSE, warning=FALSE}
+
+```r
 data2 <- merge(data, t2, by = "interval")
 
 data2$steps <- mapply(function(x,y){
@@ -97,30 +104,34 @@ data2$steps <- mapply(function(x,y){
 
 The following histogram shows the total number of steps taken each day using the data without missing values. 
 
-```{r showtable7,latex-like-tables, opts.label="xtable", message=FALSE,  results='asis'}
+
+```r
 t3 <- aggregate(steps ~ date, data = data2, FUN = sum  )
 qplot(steps, data = t3)
-
-Mean <- round(mean(t3$steps)) 
-Median <- round(median(t3$steps))
-
 ```
 
-The mean and the median of the steps, for the data without missing values, are `r format(Mean,scientific = FALSE,big.mark = ",") ` and `r format(Median,scientific = FALSE,big.mark = ",") `, respectively. Comparing this results with the priors shows that the NA does not affect the analysis. 
+![plot of chunk showtable7,latex-like-tables](figure/showtable7,latex-like-tables-1.png) 
+
+```r
+Mean <- round(mean(t3$steps)) 
+Median <- round(median(t3$steps))
+```
+
+The mean and the median of the steps, for the data without missing values, are 10,766 and 10,766, respectively. Comparing this results with the priors shows that the NA does not affect the analysis. 
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
 As part of the analysis, the effect of the weekdays was evaluated. 
-```{r showtable8, results='asis', message=FALSE, warning=FALSE}
 
+```r
 data2$day <- weekdays(as.POSIXlt(data2$date), abbreviate = FALSE)
 data2$day2 <- ifelse(data2$day %in% c("Saturday","Sunday"), "Weekend", "Weekday") 
 ```
 
 The following graphs sows the relation of the steps and the intervals during the day by weekday and weekend. 
 
-```{r showtable9, results='asis', message=FALSE, warning=FALSE}
 
+```r
 t4 <- aggregate(steps ~ interval + day2, data = data2, FUN = sum  )
  g <- ggplot(t4, aes(x=interval, y = steps))
 g + geom_line() + facet_grid(day2 ~.)+
@@ -129,7 +140,9 @@ g + geom_line() + facet_grid(day2 ~.)+
         labs(title = "Steps by 5-minutes intervals across weekdays and weekend")
 ```
 
-From the graphs we can interpret that for this individual the weekdays are more active than the weekends. 
+![plot of chunk showtable9](figure/showtable9-1.png) 
+
+From the graphs we can interpret that for this individual the weekday are more active that the weekends. 
 
 
 
